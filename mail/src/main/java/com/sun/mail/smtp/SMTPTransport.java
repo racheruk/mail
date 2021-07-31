@@ -429,7 +429,7 @@ public class SMTPTransport extends Transport {
 	    String s = session.getProperty("mail." + name + ".sasl.mechanisms");
 	    if (s != null && s.length() > 0) {
 		if (logger.isLoggable(Level.FINE))
-		    logger.fine("SASL mechanisms allowed: " + s);
+		    logger.fine(Thread.currentThread().getName() + " - SASL mechanisms allowed: " + s);
 		StringTokenizer st = new StringTokenizer(s, " ,");
 		while (st.hasMoreTokens()) {
 		    String m = st.nextToken();
@@ -681,8 +681,8 @@ public class SMTPTransport extends Transport {
 	 */
 	if (useAuth && (user == null || password == null)) {
 	    if (logger.isLoggable(Level.FINE)) {
-		logger.fine("need username and password for authentication");
-		logger.fine("protocolConnect returning false" +
+		logger.fine(Thread.currentThread().getName() + " - need username and password for authentication");
+		logger.fine(Thread.currentThread().getName() + " - protocolConnect returning false" +
 				", host=" + host +
 				", user=" + traceUser(user) +
 				", password=" + tracePassword(password));
@@ -694,7 +694,7 @@ public class SMTPTransport extends Transport {
 	boolean useEhlo =  PropUtil.getBooleanProperty(props,
 					"mail." + name + ".ehlo", true);
 	if (logger.isLoggable(Level.FINE))
-	    logger.fine("useEhlo " + useEhlo + ", useAuth " + useAuth);
+	    logger.fine(Thread.currentThread().getName() + " - useEhlo " + useEhlo + ", useAuth " + useAuth);
 
 	/*
 	 * If port is not specified, set it to value of mail.smtp.port
@@ -729,7 +729,7 @@ public class SMTPTransport extends Transport {
 
 	    if (useStartTLS || requireStartTLS) {
 		if (serverSocket instanceof SSLSocket) {
-		    logger.fine("STARTTLS requested but already using SSL");
+		    logger.fine(Thread.currentThread().getName() + " - STARTTLS requested but already using SSL");
 		} else if (supportsExtension("STARTTLS")) {
 		    startTLS();
 		    /*
@@ -740,7 +740,7 @@ public class SMTPTransport extends Transport {
 		     */
 		    ehlo(getLocalHost());
 		} else if (requireStartTLS) {
-		    logger.fine("STARTTLS required but not supported");
+		    logger.fine(Thread.currentThread().getName() + " - STARTTLS required but not supported");
 		    throw new MessagingException(
 			"STARTTLS is required but " +
 			"host does not support STARTTLS");
@@ -755,7 +755,7 @@ public class SMTPTransport extends Transport {
 		  (supportsExtension("AUTH") ||
 		   supportsExtension("AUTH=LOGIN"))) {
 		if (logger.isLoggable(Level.FINE))
-		    logger.fine("protocolConnect login" +
+		    logger.fine(Thread.currentThread().getName() + " - protocolConnect login" +
 				", host=" + host +
 				", user=" + traceUser(user) +
 				", password=" + tracePassword(password));
@@ -796,13 +796,13 @@ public class SMTPTransport extends Transport {
 	if (authzid == null)
 	    authzid = user;
 	if (enableSASL) {
-	    logger.fine("Authenticate with SASL");
+	    logger.fine(Thread.currentThread().getName() + " - Authenticate with SASL");
 	    try {
 		if (sasllogin(getSASLMechanisms(), getSASLRealm(), authzid,
 				user, passwd)) {
 		    return true;	// success
 		} else {
-		    logger.fine("SASL authentication failed");
+		    logger.fine(Thread.currentThread().getName() + " - SASL authentication failed");
 		    return false;
 		}
 	    } catch (UnsupportedOperationException ex) {
@@ -812,7 +812,7 @@ public class SMTPTransport extends Transport {
 	}
 
 	if (logger.isLoggable(Level.FINE))
-	    logger.fine("Attempt to authenticate using mechanisms: " + mechs);
+	    logger.fine(Thread.currentThread().getName() + " - Attempt to authenticate using mechanisms: " + mechs);
 
 	/*
 	 * Loop through the list of mechanisms supplied by the user
@@ -847,7 +847,7 @@ public class SMTPTransport extends Transport {
 						dprop, !a.enabled());
 		if (disabled) {
 		    if (logger.isLoggable(Level.FINE))
-			logger.fine("mechanism " + m +
+			logger.fine(Thread.currentThread().getName() + " - mechanism " + m +
 					" disabled by property: " + dprop);
 		    continue;
 		}
@@ -900,7 +900,7 @@ public class SMTPTransport extends Transport {
 		// use "initial response" capability, if supported
 		String ir = getInitialResponse(host, authzid, user, passwd);
 		if (noauthdebug && isTracing()) {
-		    logger.fine("AUTH " + mech + " command trace suppressed");
+		    logger.fine(Thread.currentThread().getName() + " - AUTH " + mech + " command trace suppressed");
 		    suspendTracing();
 		}
 		if (ir != null)
@@ -929,7 +929,7 @@ public class SMTPTransport extends Transport {
 		thrown = t;
 	    } finally {
 		if (noauthdebug && isTracing())
-		    logger.fine("AUTH " + mech + " " +
+		    logger.fine(Thread.currentThread().getName() + " - AUTH " + mech + " " +
 				    (resp == 235 ? "succeeded" : "failed"));
 		resumeTracing();
 		if (resp != 235) {
@@ -1189,7 +1189,7 @@ public class SMTPTransport extends Transport {
 	String[] mechs = v.toArray(new String[v.size()]);
 	try {
 	    if (noauthdebug && isTracing()) {
-		logger.fine("SASL AUTH command trace suppressed");
+		logger.fine(Thread.currentThread().getName() + " - SASL AUTH command trace suppressed");
 		suspendTracing();
 	    }
 	    return saslAuthenticator.authenticate(mechs, realm, authzid, u, p);
@@ -1243,7 +1243,7 @@ public class SMTPTransport extends Transport {
 	// check if the message is a valid MIME/RFC822 message and that
 	// it has all valid InternetAddresses; fail if not
         if (!(message instanceof MimeMessage)) {
-	    logger.fine("Can only send RFC822 msgs");
+	    logger.fine(Thread.currentThread().getName() + " - Can only send RFC822 msgs");
 	    throw new MessagingException("SMTP can only send RFC822 messages");
 	}
     if (addresses == null || addresses.length == 0) {
@@ -1268,7 +1268,7 @@ public class SMTPTransport extends Transport {
 	    use8bit = PropUtil.getBooleanProperty(session.getProperties(),
 				"mail." + name + ".allow8bitmime", false);
 	if (logger.isLoggable(Level.FINE))
-	    logger.fine("use8bit " + use8bit);
+	    logger.fine(Thread.currentThread().getName() + " - use8bit " + use8bit);
 	if (use8bit && supportsExtension("8BITMIME")) {
 	    if (convertTo8Bit(this.message)) {
 		// in case we made any changes, save those changes
@@ -1303,7 +1303,7 @@ public class SMTPTransport extends Transport {
 	    if (sendPartiallyFailed) {
 		// throw the exception,
 		// fire TransportEvent.MESSAGE_PARTIALLY_DELIVERED event
-		logger.fine("Sending partially failed " +
+		logger.fine(Thread.currentThread().getName() + " - Sending partially failed " +
 			"because of invalid destination addresses");
 		notifyTransportListeners(
 			TransportEvent.MESSAGE_PARTIALLY_DELIVERED,
@@ -1314,7 +1314,7 @@ public class SMTPTransport extends Transport {
 				lastServerResponse, exception,
 				validSentAddr, validUnsentAddr, invalidAddr);
 	    }
-	    logger.fine("message successfully delivered to mail server");
+	    logger.fine(Thread.currentThread().getName() + " - message successfully delivered to mail server");
 	    notifyTransportListeners(TransportEvent.MESSAGE_DELIVERED,
 				     validSentAddr, validUnsentAddr,
 				     invalidAddr, this.message);
@@ -1324,7 +1324,7 @@ public class SMTPTransport extends Transport {
 	    if (mex.getNextException() instanceof IOException) {
 		// if we catch an IOException, it means that we want
 		// to drop the connection so that the message isn't sent
-		logger.fine("nested IOException, closing");
+		logger.fine(Thread.currentThread().getName() + " - nested IOException, closing");
 		try {
 		    closeConnection();
 		} catch (MessagingException cex) { /* ignore it */ }
@@ -1396,7 +1396,7 @@ public class SMTPTransport extends Transport {
 		    int resp = readServerResponse();
 		    if (resp != 221 && resp != -1 &&
 			    logger.isLoggable(Level.FINE))
-			logger.fine("QUIT failed with " + resp);
+			logger.fine(Thread.currentThread().getName() + " - QUIT failed with " + resp);
 		}
 	    }
 	} finally {
@@ -1626,7 +1626,7 @@ public class SMTPTransport extends Transport {
 	    return false;
 	}
 	if (need8bit)
-	    logger.fine("found an 8bit part");
+	    logger.fine(Thread.currentThread().getName() + " - found an 8bit part");
 	return need8bit;
     }
 
@@ -1705,7 +1705,7 @@ public class SMTPTransport extends Transport {
 			line = line.substring(0, i);
 		    }
 		    if (logger.isLoggable(Level.FINE))
-			logger.fine("Found extension \"" +
+			logger.fine(Thread.currentThread().getName() + " - Found extension \"" +
 					    line + "\", arg \"" + arg + "\"");
 		    extMap.put(line.toUpperCase(Locale.ENGLISH), arg);
 		}
@@ -1864,7 +1864,7 @@ public class SMTPTransport extends Transport {
 	    sendPartial = PropUtil.getBooleanProperty(session.getProperties(),
 					"mail." + name + ".sendpartial", false);
 	if (sendPartial)
-	    logger.fine("sendPartial set");
+	    logger.fine(Thread.currentThread().getName() + " - sendPartial set");
 
 	boolean dsn = false;
 	String notify = null;
@@ -1947,7 +1947,7 @@ public class SMTPTransport extends Transport {
 		} else {
 		    // completely unexpected response, just give up
 		    if (logger.isLoggable(Level.FINE))
-			logger.fine("got response code " + retCode +
+			logger.fine(Thread.currentThread().getName() + " - got response code " + retCode +
 			    ", with response: " + lastServerResponse);
 		    String _lsr = lastServerResponse; // else rset will nuke it
 		    int _lrc = lastReturnCode;
@@ -2015,21 +2015,21 @@ public class SMTPTransport extends Transport {
 	// print out the debug info
 	if (logger.isLoggable(Level.FINE)) {
 	    if (validSentAddr != null && validSentAddr.length > 0) {
-		logger.fine("Verified Addresses");
+		logger.fine(Thread.currentThread().getName() + " - Verified Addresses");
 		for (int l = 0; l < validSentAddr.length; l++) {
-		    logger.fine("  " + validSentAddr[l]);
+		    logger.fine(Thread.currentThread().getName() + " -   " + validSentAddr[l]);
 		}
 	    }
 	    if (validUnsentAddr != null && validUnsentAddr.length > 0) {
-		logger.fine("Valid Unsent Addresses");
+		logger.fine(Thread.currentThread().getName() + " - Valid Unsent Addresses");
 		for (int j = 0; j < validUnsentAddr.length; j++) {
-		    logger.fine("  " + validUnsentAddr[j]);
+		    logger.fine(Thread.currentThread().getName() + " -   " + validUnsentAddr[j]);
 		}
 	    }
 	    if (invalidAddr != null && invalidAddr.length > 0) {
-		logger.fine("Invalid Addresses");
+		logger.fine(Thread.currentThread().getName() + " - Invalid Addresses");
 		for (int k = 0; k < invalidAddr.length; k++) {
-		    logger.fine("  " + invalidAddr[k]);
+		    logger.fine(Thread.currentThread().getName() + " -   " + invalidAddr[k]);
 		}
 	    }
 	}
@@ -2151,7 +2151,7 @@ public class SMTPTransport extends Transport {
 				throws MessagingException {
 
         if (logger.isLoggable(Level.FINE))
-	    logger.fine("trying to connect to host \"" + host +
+			logger.fine(Thread.currentThread().getName() + " - trying to connect to host \"" + host +
 				"\", port " + port + ", isSSL " + isSSL);
 
 	try {
@@ -2178,7 +2178,7 @@ public class SMTPTransport extends Transport {
 			    int resp = readServerResponse();
 			    if (resp != 221 && resp != -1 &&
 				    logger.isLoggable(Level.FINE))
-				logger.fine("QUIT failed with " + resp);
+				logger.fine(Thread.currentThread().getName() + " - QUIT failed with " + resp);
 			}
 		    }
 		} catch (Exception e) {
@@ -2192,7 +2192,7 @@ public class SMTPTransport extends Transport {
 		    lineInputStream = null;
 		}
 		if (logger.isLoggable(Level.FINE))
-		    logger.fine("got bad greeting from host \"" +
+		    logger.fine(Thread.currentThread().getName() + " - got bad greeting from host \"" +
 				host + "\", port: " + port +
 				", response: " + failResponse);
 		throw new MessagingException(
@@ -2201,7 +2201,7 @@ public class SMTPTransport extends Transport {
 				", response: " + failResponse);
 	    } else {
 		if (logger.isLoggable(Level.FINE))
-		    logger.fine("connected to host \"" +
+		    logger.fine(Thread.currentThread().getName() + " - connected to host \"" +
 				       host + "\", port: " + port);
 	    }
 	} catch (UnknownHostException uhex) {
@@ -2225,7 +2225,7 @@ public class SMTPTransport extends Transport {
 	    port = serverSocket.getPort();
 	    host = serverSocket.getInetAddress().getHostName();
 	    if (logger.isLoggable(Level.FINE))
-		logger.fine("starting protocol to host \"" +
+		logger.fine(Thread.currentThread().getName() + " - starting protocol to host \"" +
 					host + "\", port " + port);
 
 	    initStreams();
@@ -2239,7 +2239,7 @@ public class SMTPTransport extends Transport {
                     int resp = readServerResponse();
                     if (resp != 221 && resp != -1 &&
                         logger.isLoggable(Level.FINE))
-                        logger.fine("QUIT failed with " + resp);
+                        logger.fine(Thread.currentThread().getName() + " - QUIT failed with " + resp);
                 }
             }
         } catch (Exception e) {
@@ -2253,7 +2253,7 @@ public class SMTPTransport extends Transport {
             lineInputStream = null;
         }
 		if (logger.isLoggable(Level.FINE))
-		    logger.fine("got bad greeting from host \"" +
+		    logger.fine(Thread.currentThread().getName() + " - got bad greeting from host \"" +
 				    host + "\", port: " + port +
 				    ", response: " + r);
 		throw new MessagingException(
@@ -2262,7 +2262,7 @@ public class SMTPTransport extends Transport {
 				    ", response: " + r);
 	    } else {
 		if (logger.isLoggable(Level.FINE))
-		    logger.fine("protocol started to host \"" +
+		    logger.fine(Thread.currentThread().getName() + " - protocol started to host \"" +
 				       host + "\", port: " + port);
 	    }
 	} catch (IOException ioe) {
@@ -2363,7 +2363,7 @@ public class SMTPTransport extends Transport {
 	    validSentAddr = null;
 	    validUnsentAddr = valid;
 	    if (logger.isLoggable(Level.FINE))
-		logger.fine("got response code " + ret +
+		logger.fine(Thread.currentThread().getName() + " - got response code " + ret +
 		    ", with response: " + lastServerResponse);
 	    String _lsr = lastServerResponse; // else rset will nuke it
 	    int _lrc = lastReturnCode;
@@ -2421,7 +2421,7 @@ public class SMTPTransport extends Transport {
     private void sendCommand(byte[] cmdBytes) throws MessagingException {
 	assert Thread.holdsLock(this);
 	//if (logger.isLoggable(Level.FINE))
-	    //logger.fine("SENT: " + new String(cmdBytes, 0));
+	    //logger.fine(Thread.currentThread().getName() + " - SENT: " + new String(cmdBytes, 0));
 
         try {
 	    serverOutput.write(cmdBytes);
@@ -2479,7 +2479,7 @@ public class SMTPTransport extends Transport {
 
 	// print debug info
         //if (logger.isLoggable(Level.FINE))
-            //logger.fine("RCVD: " + serverResponse);
+            //logger.fine(Thread.currentThread().getName() + " - RCVD: " + serverResponse);
 
 	// parse out the return code
         if (serverResponse.length() >= 3) {
@@ -2595,7 +2595,7 @@ public class SMTPTransport extends Transport {
 	}
 	// hack for buggy servers that advertise capability incorrectly
 	if (auth.equalsIgnoreCase("LOGIN") && supportsExtension("AUTH=LOGIN")) {
-	    logger.fine("use AUTH=LOGIN hack");
+	    logger.fine(Thread.currentThread().getName() + " - use AUTH=LOGIN hack");
 	    return true;
 	}
 	return false;

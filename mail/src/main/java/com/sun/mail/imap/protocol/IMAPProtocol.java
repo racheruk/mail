@@ -105,6 +105,7 @@ public class IMAPProtocol extends Protocol {
 			Properties props, boolean isSSL, MailLogger logger)
 			throws IOException, ProtocolException {
 	super(host, port, props, "mail." + name, isSSL, logger);
+		logger.log(Level.INFO, Thread.currentThread().getName() + " - Done with IMAPProtocol.super");
 
 	try {
 	    this.name = name;
@@ -128,7 +129,9 @@ public class IMAPProtocol extends Protocol {
 				);
 
 	    connected = true;	// must be last statement in constructor
+		logger.log(Level.INFO, Thread.currentThread().getName() + " - IMAPProtocol Constructor before finally");
 	} finally {
+		logger.log(Level.INFO, Thread.currentThread().getName() + " - IMAPProtocol Constructor finally");
 	    /*
 	     * If we get here because an exception was thrown, we need
 	     * to disconnect to avoid leaving a connected socket that
@@ -278,7 +281,7 @@ public class IMAPProtocol extends Protocol {
 		if (s.regionMatches(true, 0, "AUTH=", 0, 5)) {
 		    authmechs.add(s.substring(5));
 		    if (logger.isLoggable(Level.FINE))
-			logger.fine("AUTH: " + s.substring(5));
+			logger.log(Level.INFO, Thread.currentThread().getName() + "AUTH: " + s.substring(5));
 		}
 	    }
 	}
@@ -439,7 +442,9 @@ public class IMAPProtocol extends Protocol {
      */
     @Override
     public void disconnect() {
+		logger.log(Level.INFO, Thread.currentThread().getName() + " - IMAPProtocol disconnect");
 	super.disconnect();
+		logger.log(Level.INFO, Thread.currentThread().getName() + " - IMAPProtocol disconnect super done");
 	authenticated = false;	// just in case
     }
 
@@ -450,7 +455,7 @@ public class IMAPProtocol extends Protocol {
      * @see "RFC2060, section 6.1.2"
      */
     public void noop() throws ProtocolException {
-	logger.fine("IMAPProtocol noop");
+	logger.log(Level.INFO, Thread.currentThread().getName() + "IMAPProtocol noop");
 	simpleCommand("NOOP", null);
     }
 
@@ -489,7 +494,7 @@ public class IMAPProtocol extends Protocol {
 	Response[] r = null;
 	try {
 	    if (noauthdebug && isTracing()) {
-		logger.fine("LOGIN command trace suppressed");
+		logger.log(Level.INFO, Thread.currentThread().getName() + "LOGIN command trace suppressed");
 		suspendTracing();
 	    }
 	    r = command("LOGIN", args);
@@ -505,7 +510,7 @@ public class IMAPProtocol extends Protocol {
 
 	// Handle result of this command
 	if (noauthdebug && isTracing())
-	    logger.fine("LOGIN command result: " + r[r.length-1]);
+	    logger.log(Level.INFO, Thread.currentThread().getName() + "LOGIN command result: " + r[r.length-1]);
 	handleLoginResult(r[r.length-1]);
 	// If the response includes a CAPABILITY response code, process it
 	setCapabilities(r[r.length-1]);
@@ -531,7 +536,7 @@ public class IMAPProtocol extends Protocol {
 	try {
 
 	if (noauthdebug && isTracing()) {
-	    logger.fine("AUTHENTICATE LOGIN command trace suppressed");
+	    logger.log(Level.INFO, Thread.currentThread().getName() + "AUTHENTICATE LOGIN command trace suppressed");
 	    suspendTracing();
 	}
 
@@ -619,7 +624,7 @@ public class IMAPProtocol extends Protocol {
 
 	// Handle the final OK, NO, BAD or BYE response
 	if (noauthdebug && isTracing())
-	    logger.fine("AUTHENTICATE LOGIN command result: " + r);
+	    logger.log(Level.INFO, Thread.currentThread().getName() + "AUTHENTICATE LOGIN command result: " + r);
 	handleLoginResult(r);
 	// If the response includes a CAPABILITY response code, process it
 	setCapabilities(r);
@@ -650,7 +655,7 @@ public class IMAPProtocol extends Protocol {
 	try {
 
 	if (noauthdebug && isTracing()) {
-	    logger.fine("AUTHENTICATE PLAIN command trace suppressed");
+	    logger.log(Level.INFO, Thread.currentThread().getName() + "AUTHENTICATE PLAIN command trace suppressed");
 	    suspendTracing();
 	}
 
@@ -734,7 +739,7 @@ public class IMAPProtocol extends Protocol {
 
 	// Handle the final OK, NO, BAD or BYE response
 	if (noauthdebug && isTracing())
-	    logger.fine("AUTHENTICATE PLAIN command result: " + r);
+	    logger.log(Level.INFO, Thread.currentThread().getName() + "AUTHENTICATE PLAIN command result: " + r);
 	handleLoginResult(r);
 	// If the response includes a CAPABILITY response code, process it
 	setCapabilities(r);
@@ -773,7 +778,7 @@ public class IMAPProtocol extends Protocol {
 	try {
 
 	if (noauthdebug && isTracing()) {
-	    logger.fine("AUTHENTICATE NTLM command trace suppressed");
+	    logger.log(Level.INFO, Thread.currentThread().getName() + "AUTHENTICATE NTLM command trace suppressed");
 	    suspendTracing();
 	}
 
@@ -838,7 +843,7 @@ public class IMAPProtocol extends Protocol {
 
 	// Handle the final OK, NO, BAD or BYE response
 	if (noauthdebug && isTracing())
-	    logger.fine("AUTHENTICATE NTLM command result: " + r);
+	    logger.log(Level.INFO, Thread.currentThread().getName() + "AUTHENTICATE NTLM command result: " + r);
 	handleLoginResult(r);
 	// If the response includes a CAPABILITY response code, process it
 	setCapabilities(r);
@@ -867,7 +872,7 @@ public class IMAPProtocol extends Protocol {
 	try {
 
 	if (noauthdebug && isTracing()) {
-	    logger.fine("AUTHENTICATE XOAUTH2 command trace suppressed");
+	    logger.log(Level.INFO, Thread.currentThread().getName() + "AUTHENTICATE XOAUTH2 command trace suppressed");
 	    suspendTracing();
 	}
 
@@ -936,7 +941,7 @@ public class IMAPProtocol extends Protocol {
 
 	// Handle the final OK, NO, BAD or BYE response
 	if (noauthdebug && isTracing())
-	    logger.fine("AUTHENTICATE XOAUTH2 command result: " + r);
+	    logger.log(Level.INFO, Thread.currentThread().getName() + "AUTHENTICATE XOAUTH2 command result: " + r);
 	handleLoginResult(r);
 	// If the response includes a CAPABILITY response code, process it
 	setCapabilities(r);
@@ -1006,17 +1011,17 @@ public class IMAPProtocol extends Protocol {
 	try {
 
 	    if (noauthdebug && isTracing()) {
-		logger.fine("SASL authentication command trace suppressed");
+		logger.log(Level.INFO, Thread.currentThread().getName() + "SASL authentication command trace suppressed");
 		suspendTracing();
 	    }
 
 	    if (saslAuthenticator.authenticate(mechs, realm, authzid, u, p)) {
 		if (noauthdebug && isTracing())
-		    logger.fine("SASL authentication succeeded");
+		    logger.log(Level.INFO, Thread.currentThread().getName() + "SASL authentication succeeded");
 		authenticated = true;
 	    } else {
 		if (noauthdebug && isTracing())
-		    logger.fine("SASL authentication failed");
+		    logger.log(Level.INFO, Thread.currentThread().getName() + "SASL authentication failed");
 	    }
 	} finally {
 	    resumeTracing();

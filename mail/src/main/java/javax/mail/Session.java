@@ -495,7 +495,7 @@ public final class Session {
 	String _className = props.getProperty("mail."+protocol+".class");
 	if (_className != null) {
 	    if (logger.isLoggable(Level.FINE)) {
-		logger.fine("mail."+protocol+
+		logger.log(Level.INFO, Thread.currentThread().getName() + "mail."+protocol+
 				   ".class property exists and points to " + 
 				   _className);
 	    }
@@ -513,7 +513,7 @@ public final class Session {
 	    throw new NoSuchProviderException("No provider for " + protocol);
 	} else {
 	    if (logger.isLoggable(Level.FINE)) {
-		logger.fine("getProvider() returning " + _provider.toString());
+		logger.log(Level.INFO, Thread.currentThread().getName() + "getProvider() returning " + _provider.toString());
 	    }
 	    return _provider;
 	}
@@ -983,7 +983,7 @@ public final class Session {
 	 * If we haven't loaded any providers, fake it.
 	 */
 	if (providers.size() == 0) {
-	    logger.config("failed to load any providers, using defaults");
+	    logger.config(Thread.currentThread().getName() + " - failed to load any providers, using defaults");
 	    // failed to load any providers, initialize with our defaults
 	    addProvider(new Provider(Provider.Type.STORE,
 			"imap", "com.sun.mail.imap.IMAPStore",
@@ -1007,10 +1007,10 @@ public final class Session {
 
 	if (logger.isLoggable(Level.CONFIG)) {
 	    // dump the output of the tables for debugging
-	    logger.config("Tables of loaded providers");
-	    logger.config("Providers Listed By Class Name: " + 
+	    logger.config(Thread.currentThread().getName() + " - Tables of loaded providers");
+	    logger.config(Thread.currentThread().getName() + " - Providers Listed By Class Name: " + 
 	       providersByClassName.toString());
-	    logger.config("Providers Listed By Protocol: " + 
+	    logger.config(Thread.currentThread().getName() + " - Providers Listed By Protocol: " + 
 	       providersByProtocol.toString());
 	}
     }
@@ -1111,7 +1111,7 @@ public final class Session {
 	} catch (SecurityException ex) {}
 
 	if (addressMap.isEmpty()) {
-	    logger.config("failed to load address map, using defaults");
+	    logger.config(Thread.currentThread().getName() + " - failed to load address map, using defaults");
 	    addressMap.put("rfc822", "smtp");
 	}
     }
@@ -1245,7 +1245,7 @@ public final class Session {
 	// if failed to load anything, fall back to old technique, just in case
 	if (!anyLoaded) {
 	    /*
-	    logger.config("!anyLoaded");
+	    logger.config(Thread.currentThread().getName() + " - !anyLoaded");
 	    */
 	    loadResource("/" + name, cl, loader, false);
 	}

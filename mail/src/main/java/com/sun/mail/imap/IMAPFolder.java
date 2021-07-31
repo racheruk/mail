@@ -448,6 +448,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * ASSERT: Must be called with this folder's synchronization lock held.
      */
     protected void checkOpened() throws FolderClosedException {
+    	logger.log(Level.INFO, Thread.currentThread().getName() + " - Checking if its open");
 	assert Thread.holdsLock(this);
 	if (!opened) {
 	    if (reallyClosed)
@@ -1829,6 +1830,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	 * Need to override Folder method to throw FolderClosedException
 	 * instead of IllegalStateException if not really closed.
 	 */
+		logger.log(Level.INFO, Thread.currentThread().getName() + " - getMessages");
 	checkOpened();
 	int total = getMessageCount();
 	Message[] msgs = new Message[total];
@@ -2448,6 +2450,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      */
     public synchronized Message[] getSortedMessages(SortTerm[] term,
 				SearchTerm sterm) throws MessagingException {
+		logger.log(Level.INFO, Thread.currentThread().getName() + " - getSortedMessages");
 	checkOpened();
 
 	try {
